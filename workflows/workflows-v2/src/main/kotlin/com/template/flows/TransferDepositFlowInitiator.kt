@@ -3,6 +3,7 @@ package com.template.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.template.contracts.DepositContract
 import com.template.states.DepositState
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.CordaX500Name
@@ -15,16 +16,13 @@ import java.util.stream.Collectors
 
 @InitiatingFlow
 @StartableByRPC
-class CreateDepositFlowInitiator(
-    private val bank: Party,
-    private val treasury: Party,
-    private val amount: Double,
-    private val currency: String,
-    private val ref: String
+class TransferDepositFlowInitiator(
+    private val newOwner: Party,
+    private val accountId: String
 ) : FlowLogic<SignedTransaction>() {
-
     companion object {
         object OBTAINING_NOTARY : ProgressTracker.Step("Getting Notary from Network")
+        object OBTAINING_INPUT_STATE : ProgressTracker.Step("Getting Input Deposit State")
         object GENERATING_OUTPUT_STATE : ProgressTracker.Step("Generating output state")
         object GENERATING_TRANSACTION : ProgressTracker.Step("Generating transaction")
         object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
@@ -39,6 +37,7 @@ class CreateDepositFlowInitiator(
 
         fun tracker() = ProgressTracker(
             OBTAINING_NOTARY,
+            OBTAINING_INPUT_STATE,
             GENERATING_OUTPUT_STATE,
             GENERATING_TRANSACTION,
             VERIFYING_TRANSACTION,
@@ -57,22 +56,45 @@ class CreateDepositFlowInitiator(
         progressTracker.currentStep = OBTAINING_NOTARY
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
+        progressTracker.currentStep = OBTAINING_INPUT_STATE
+
+        //Use vaultQuery to fetch all VehicleState and then use a filter to find the VehicleState corresponding to the registration number.
+        //This resulting state will be used a input for our vehicle transfer transaction.
+        val stateStateAndRef: List<StateAndRef<DepositState>> = serviceHub.vaultService.queryBy(
+            DepositState::class.java
+        ).states
+        val (state) = stateStateAndRef.stream().filter { (state): StateAndRef<DepositState> ->
+            val depositState: DepositState = state.data
+            depositState.reference == accountId
+        }.findAny().orElseThrow<IllegalArgumentException> {
+            IllegalArgumentException(
+                "Deposit Not Found"
+            )
+        }
+        val inputState: DepositState = state.data
         //Compose the State that carries the Hello World message
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
-        val output = DepositState(amount, bank, treasury, currency, ref)
+        val output = DepositState(
+            inputState.amount,
+            inputState.bank,
+            inputState.treasury,
+            inputState.currency,
+            accountId,
+            newOwner
+        )
 
         // Step 3. Create a new TransactionBuilder object.
         progressTracker.currentStep = GENERATING_TRANSACTION
         val builder = TransactionBuilder(notary)
-            .addCommand(DepositContract.Commands.Create(), listOf(bank.owningKey,treasury.owningKey))
+            .addCommand(
+                DepositContract.Commands.Transfer(),
+                listOf(inputState.bank.owningKey, inputState.treasury.owningKey, newOwner.owningKey)
+            )
             .addOutputState(output)
 
         // Step 4. Verify and sign it with our KeyPair.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         builder.verify(serviceHub)
-
-//        //Initiate Flow with owner
-//        val ownerSession = initiateFlow(bank)
 
         progressTracker.currentStep = SIGNING_TRANSACTION
         val ptx = serviceHub.signInitialTransaction(builder)
@@ -82,6 +104,7 @@ class CreateDepositFlowInitiator(
         val otherParties: MutableList<Party> =
             output.participants.stream().map { el: AbstractParty? -> el as Party? }.collect(Collectors.toList())
         otherParties.remove(ourIdentity)
+        otherParties.add(newOwner)
         val sessions = otherParties.stream().map { el: Party? -> initiateFlow(el!!) }.collect(Collectors.toList())
 
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))

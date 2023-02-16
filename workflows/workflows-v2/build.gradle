@@ -48,7 +48,7 @@ dependencies {
     testCompile "$corda_release_group:corda-node-driver:$corda_release_version"
 
     // CorDapp dependencies.
-    cordapp project(":contracts:contracts-v1")
+    cordapp project(":contracts:contracts-v2") //changed to pick correct version of contracts
 }
 
 task integrationTest(type: Test, dependsOn: []) {

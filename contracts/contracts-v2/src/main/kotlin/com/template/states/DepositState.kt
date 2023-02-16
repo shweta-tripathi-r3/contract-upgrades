@@ -11,10 +11,12 @@ import net.corda.core.identity.Party
 // * State *
 // *********
 @BelongsToContract(DepositContract::class)
-data class DepositState(val amount: Double,
-                        val bank: Party,
-                        val treasury: Party,
-                        val currency: String,
-                        val reference: String,
-                        override val participants: List<AbstractParty> = listOf(bank,treasury)
+data class DepositState(
+    val amount: Double,
+    val bank: Party,
+    val treasury: Party,
+    val currency: String,
+    val reference: String,
+    val currentOwner: Party? = null,
+    override val participants: List<AbstractParty> = listOf(bank,treasury)
 ) : ContractState

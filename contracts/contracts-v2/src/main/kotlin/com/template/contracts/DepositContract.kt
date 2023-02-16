@@ -3,9 +3,9 @@ package com.template.contracts
 import com.template.states.DepositState
 import net.corda.core.contracts.CommandData
 import net.corda.core.contracts.Contract
-import net.corda.core.contracts.requireSingleCommand
-import net.corda.core.transactions.LedgerTransaction
 import net.corda.core.contracts.requireThat
+import net.corda.core.transactions.LedgerTransaction
+
 // ************
 // * Contract *
 // ************
@@ -19,12 +19,15 @@ class DepositContract : Contract {
     // does not throw an exception.
     override fun verify(tx: LedgerTransaction) {
         // Verification logic goes here.
-        val command = tx.commands.requireSingleCommand<Commands.Create>()
+        val (value) = tx.getCommand<CommandData>(0)
         val output = tx.outputsOfType<DepositState>().first()
-        when (command.value) {
+        when (value) {
             is Commands.Create -> requireThat {
                 "No inputs should be consumed when creating a Deposit state.".using(tx.inputStates.isEmpty())
                 "The deposit amount should be positive".using(output.amount > 0)
+            }
+            is Commands.Transfer -> requireThat {
+                "Deposit cannot be transferred to self".using(output.bank != output.currentOwner)
             }
         }
     }
@@ -32,5 +35,6 @@ class DepositContract : Contract {
     // Used to indicate the transaction's intent.
     interface Commands : CommandData {
         class Create : Commands
+        class Transfer : Commands
     }
 }
