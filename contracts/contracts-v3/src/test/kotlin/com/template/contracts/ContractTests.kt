@@ -10,11 +10,11 @@ import com.template.states.DepositState
 class ContractTests {
     private val ledgerServices: MockServices = MockServices(listOf("com.template"))
     var bankA = TestIdentity(CordaX500Name("BankA", "TestLand", "US"))
-    var treasury = TestIdentity(CordaX500Name("Treasury", "TestLand", "US"))
+    var bankB = TestIdentity(CordaX500Name("BankB", "TestLand", "US"))
 
     @Test
     fun dummytest() {
-        val state = DepositState(100.00, bankA.party, treasury.party,"USD","ref123")
+        val state = DepositState(100.00, bankA.party, bankB.party,"USD","ref123")
         ledgerServices.ledger {
             // Should fail bid price is equal to previous highest bid
             transaction {
