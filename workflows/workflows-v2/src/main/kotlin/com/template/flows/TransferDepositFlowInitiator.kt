@@ -92,6 +92,7 @@ class TransferDepositFlowInitiator(
             )
             .addOutputState(output)
 
+        output.participants = listOf(inputState.bank, inputState.treasury, newOwner)
         // Step 4. Verify and sign it with our KeyPair.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         builder.verify(serviceHub)

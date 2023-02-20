@@ -18,5 +18,5 @@ data class DepositState(
     val currency: String,
     val reference: String,
     val currentOwner: Party? = null,
-    override val participants: List<AbstractParty> = listOf(bank,treasury)
+    override var participants: List<AbstractParty> = listOf(bank,treasury)
 ) : ContractState
