@@ -52,20 +52,20 @@ class TransferDepositFlowInitiator(
     @Suspendable
     override fun call(): SignedTransaction {
 
-        // Step 1. Get a reference to the notary service on our network and our key pair.
+        // Step 1. Get a reference to the notary service on our network.
         progressTracker.currentStep = OBTAINING_NOTARY
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
         progressTracker.currentStep = OBTAINING_INPUT_STATE
 
-        //Use vaultQuery to fetch all VehicleState and then use a filter to find the VehicleState corresponding to the registration number.
-        //This resulting state will be used a input for our vehicle transfer transaction.
+        //Use vaultQuery to fetch all DepositStates and then use a filter to find the DepositStates corresponding to the accountId.
+        //This resulting state will be used as input for our deposit transfer transaction.
         val stateStateAndRef: List<StateAndRef<DepositState>> = serviceHub.vaultService.queryBy(
             DepositState::class.java
         ).states
         val (state) = stateStateAndRef.stream().filter { (state): StateAndRef<DepositState> ->
             val depositState: DepositState = state.data
-            depositState.reference == accountId
+            depositState.accountId == accountId
         }.findAny().orElseThrow<IllegalArgumentException> {
             IllegalArgumentException(
                 "Deposit Not Found"
@@ -76,7 +76,7 @@ class TransferDepositFlowInitiator(
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
         val output = DepositState(
             inputState.amount,
-            inputState.bank,
+            inputState.owner,
             inputState.treasury,
             inputState.currency,
             accountId,
@@ -88,15 +88,17 @@ class TransferDepositFlowInitiator(
         val builder = TransactionBuilder(notary)
             .addCommand(
                 DepositContract.Commands.Transfer(),
-                listOf(inputState.bank.owningKey, inputState.treasury.owningKey, newOwner.owningKey)
+                listOf(inputState.owner.owningKey, inputState.treasury.owningKey, newOwner.owningKey)
             )
             .addOutputState(output)
 
-        output.participants = listOf(inputState.bank, inputState.treasury, newOwner)
+        output.participants = listOf(inputState.owner, inputState.treasury, newOwner)
+
         // Step 4. Verify and sign it with our KeyPair.
         progressTracker.currentStep = VERIFYING_TRANSACTION
         builder.verify(serviceHub)
 
+        // Step 5. Sign it with our KeyPair.
         progressTracker.currentStep = SIGNING_TRANSACTION
         val ptx = serviceHub.signInitialTransaction(builder)
 
@@ -110,8 +112,8 @@ class TransferDepositFlowInitiator(
 
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
-        // Step 6. Assuming no exceptions, we can now finalise the transaction
+        // Step 7. Assuming no exceptions, we can now finalise the transaction
         progressTracker.currentStep = FINALISING_TRANSACTION
-        return subFlow<SignedTransaction>(FinalityFlow(stx, sessions))
+        return subFlow(FinalityFlow(stx, sessions))
     }
 }

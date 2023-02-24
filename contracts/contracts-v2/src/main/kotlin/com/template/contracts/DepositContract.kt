@@ -27,7 +27,7 @@ class DepositContract : Contract {
                 "The deposit amount should be positive".using(output.amount > 0)
             }
             is Commands.Transfer -> requireThat {
-                "Deposit cannot be transferred to self".using(output.bank != output.currentOwner)
+                "Deposit cannot be transferred to self".using(output.owner != output.currentOwner)
             }
         }
     }

@@ -53,11 +53,11 @@ class CreateDepositFlowInitiator(
     @Suspendable
     override fun call(): SignedTransaction {
 
-        // Step 1. Get a reference to the notary service on our network and our key pair.
+        // Step 1. Get a reference to the notary service on our network.
         progressTracker.currentStep = OBTAINING_NOTARY
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        //Compose the State that carries the Hello World message
+        //Compose the output Deposit State
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
         val output = DepositState(amount, bank, treasury, currency, ref)
 
@@ -71,9 +71,7 @@ class CreateDepositFlowInitiator(
         progressTracker.currentStep = VERIFYING_TRANSACTION
         builder.verify(serviceHub)
 
-//        //Initiate Flow with owner
-//        val ownerSession = initiateFlow(bank)
-
+        // Step 5. Sign it with our KeyPair.
         progressTracker.currentStep = SIGNING_TRANSACTION
         val ptx = serviceHub.signInitialTransaction(builder)
 
@@ -86,7 +84,7 @@ class CreateDepositFlowInitiator(
 
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
-        // Step 6. Assuming no exceptions, we can now finalise the transaction
+        // Step 7. Assuming no exceptions, we can now finalise the transaction
         progressTracker.currentStep = FINALISING_TRANSACTION
         return subFlow<SignedTransaction>(FinalityFlow(stx, sessions))
     }
