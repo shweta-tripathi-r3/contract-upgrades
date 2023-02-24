@@ -29,9 +29,9 @@ class CreateDepositFlowInitiator(
         object GENERATING_TRANSACTION : ProgressTracker.Step("Generating transaction")
         object VERIFYING_TRANSACTION : ProgressTracker.Step("Verifying contract constraints.")
         object SIGNING_TRANSACTION : ProgressTracker.Step("Signing transaction with our private key.")
-//        object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
-//            override fun childProgressTracker() = CollectSignaturesFlow.tracker()
-//        }
+        object GATHERING_SIGS : ProgressTracker.Step("Gathering the counterparty's signature.") {
+            override fun childProgressTracker() = CollectSignaturesFlow.tracker()
+        }
 
         object FINALISING_TRANSACTION : ProgressTracker.Step("Obtaining notary signature and recording transaction.") {
             override fun childProgressTracker() = FinalityFlow.tracker()
@@ -43,6 +43,7 @@ class CreateDepositFlowInitiator(
             GENERATING_TRANSACTION,
             VERIFYING_TRANSACTION,
             SIGNING_TRANSACTION,
+            GATHERING_SIGS,
             FINALISING_TRANSACTION
         )
     }
@@ -52,11 +53,11 @@ class CreateDepositFlowInitiator(
     @Suspendable
     override fun call(): SignedTransaction {
 
-        // Step 1. Get a reference to the notary service on our network and our key pair.
+        // Step 1. Get a reference to the notary service on our network
         progressTracker.currentStep = OBTAINING_NOTARY
         val notary = serviceHub.networkMapCache.getNotary(CordaX500Name.parse("O=Notary,L=London,C=GB"))
 
-        //Compose the State that carries the Hello World message
+        //Compose the output Deposit State
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
         val output = DepositState(amount, bank, treasury, currency, ref)
 
@@ -70,13 +71,12 @@ class CreateDepositFlowInitiator(
         progressTracker.currentStep = VERIFYING_TRANSACTION
         builder.verify(serviceHub)
 
-//        //Initiate Flow with owner
-//        val ownerSession = initiateFlow(bank)
-
+        // Step 5. Sign Transaction with our key pair.
         progressTracker.currentStep = SIGNING_TRANSACTION
         val ptx = serviceHub.signInitialTransaction(builder)
 
         // Step 6. Collect the other party's signature using the SignTransactionFlow.
+        progressTracker.currentStep = GATHERING_SIGS
         val otherParties: MutableList<Party> =
             output.participants.stream().map { el: AbstractParty? -> el as Party? }.collect(Collectors.toList())
         otherParties.remove(ourIdentity)
@@ -84,8 +84,8 @@ class CreateDepositFlowInitiator(
 
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
-        // Step 6. Assuming no exceptions, we can now finalise the transaction
+        // Step 7. We can now finalise the transaction
         progressTracker.currentStep = FINALISING_TRANSACTION
-        return subFlow<SignedTransaction>(FinalityFlow(stx, sessions))
+        return subFlow(FinalityFlow(stx, sessions))
     }
 }

@@ -15,6 +15,6 @@ data class DepositState(val amount: Double,
                         val bank: Party,
                         val treasury: Party,
                         val currency: String,
-                        val reference: String,
+                        val accountId: String,
                         override val participants: List<AbstractParty> = listOf(bank,treasury)
 ) : ContractState
