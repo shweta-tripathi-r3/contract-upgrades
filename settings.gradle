@@ -1,13 +1,11 @@
 include 'workflows'
 include 'contracts'
-//include 'clients'
+include 'clients'
 
 include 'contracts:contracts-v1'
 include 'contracts:contracts-v2'
-include 'contracts:contracts-v3'
+//include 'contracts:contracts-v3'
 
 include 'workflows:workflows-v1'
 include 'workflows:workflows-v2'
-include 'workflows:workflows-v3'
-
-include 'clients'
+//include 'workflows:workflows-v3'

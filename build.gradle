@@ -88,8 +88,6 @@ dependencies {
     cordapp project(':workflows:workflows-v1')
     cordapp project(':contracts:contracts-v2')
     cordapp project(':workflows:workflows-v2')
-    cordapp project(':contracts:contracts-v3')
-    cordapp project(':workflows:workflows-v3')
 
     cordaCompile "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
     cordaCompile "org.apache.logging.log4j:log4j-web:${log4j_version}"
