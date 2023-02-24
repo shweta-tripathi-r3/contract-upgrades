@@ -1,5 +1,6 @@
 package com.template
 
+import com.template.flows.CreateDepositFlowInitiator
 import net.corda.testing.node.*
 import org.junit.After
 import org.junit.Before
@@ -8,7 +9,6 @@ import com.template.states.DepositState
 import java.util.concurrent.Future;
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
-import com.template.flows.Initiator
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.node.services.Vault.StateStatus
 
@@ -36,7 +36,7 @@ class FlowTests {
     }
     @Test
     fun `DummyTest`() {
-        val flow = Initiator(b.info.legalIdentities[0],a.info.legalIdentities[0],100.00,"USD", "ref123")
+        val flow = CreateDepositFlowInitiator(b.info.legalIdentities[0],a.info.legalIdentities[0],100.00,"USD", "ref123")
         val future: Future<SignedTransaction> = a.startFlow(flow)
         network.runNetwork()
 
