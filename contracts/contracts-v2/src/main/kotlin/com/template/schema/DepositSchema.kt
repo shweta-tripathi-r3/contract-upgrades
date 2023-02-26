@@ -34,9 +34,12 @@ class DepositSchemaV1 : MappedSchema(
         val currency: String,
 
         @Column(name = "account_id")
-        val accountId: String
+        val accountId: String,
+
+        @Column(name = "current_owner")
+        val currentOwner: String
 
     ) : PersistentState(){
-        constructor() : this("","",0,"","")
+        constructor() : this("","",0,"","","")
     }
 }
