@@ -36,7 +36,7 @@ Check created states
 
 ## Upgrade Scenario
 *Step1*
-Drain nodes - `setFlowsDrainingModeEnabled enabled: true` and do `graceful shutdown`.
+Drain nodes - `run setFlowsDrainingModeEnabled enabled: true` and do graceful shutdown `run gracefulShutdown`.
 Upgrade flows and contracts to version 2 for all nodes.
 Upgrade can be done by using the below script, which would copy workflows-v2.jar to cordapps directory of the 3 nodes.
 
@@ -54,6 +54,6 @@ Transfer the previously created Deposit State from `BankA` to `BankB`
 
 *Step4*
 Check Vault of `BankA`, `BankB` and `Treasury`
-run vaultQuery contractStateType: com.template.states.DepositState
+`run vaultQuery contractStateType: com.template.states.DepositState`
 
 For `BankA` and `Treasury` the previously created Deposit State will have the new field as null 
