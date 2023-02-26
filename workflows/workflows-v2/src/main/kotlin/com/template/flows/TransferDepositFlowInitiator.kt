@@ -75,9 +75,9 @@ class TransferDepositFlowInitiator(
         //Compose the State that carries the Hello World message
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
         val output = DepositState(
-            inputState.amount,
             inputState.owner,
             inputState.treasury,
+            inputState.amount,
             inputState.currency,
             accountId,
             newOwner

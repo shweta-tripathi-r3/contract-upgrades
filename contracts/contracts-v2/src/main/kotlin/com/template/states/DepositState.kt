@@ -12,9 +12,9 @@ import net.corda.core.identity.Party
 // *********
 @BelongsToContract(DepositContract::class)
 data class DepositState(
-    val amount: Double,
     val owner: Party,
     val treasury: Party,
+    val amount: Int,
     val currency: String,
     val accountId: String,
     val currentOwner: Party? = null,

@@ -36,7 +36,7 @@ class FlowTests {
     }
     @Test
     fun `DummyTest`() {
-        val flow = CreateDepositFlowInitiator(b.info.legalIdentities[0],a.info.legalIdentities[0],100.00,"USD", "ref123")
+        val flow = CreateDepositFlowInitiator(b.info.legalIdentities[0],a.info.legalIdentities[0],100,"USD", "ref123")
         val future: Future<SignedTransaction> = a.startFlow(flow)
         network.runNetwork()
 

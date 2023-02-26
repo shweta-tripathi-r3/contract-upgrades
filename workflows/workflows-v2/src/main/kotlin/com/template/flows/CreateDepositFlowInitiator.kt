@@ -18,7 +18,7 @@ import java.util.stream.Collectors
 class CreateDepositFlowInitiator(
     private val bank: Party,
     private val treasury: Party,
-    private val amount: Double,
+    private val amount: Int,
     private val currency: String,
     private val ref: String
 ) : FlowLogic<SignedTransaction>() {
@@ -59,7 +59,7 @@ class CreateDepositFlowInitiator(
 
         //Compose the output Deposit State
         progressTracker.currentStep = GENERATING_OUTPUT_STATE
-        val output = DepositState(amount, bank, treasury, currency, ref)
+        val output = DepositState(bank, treasury, amount, currency, ref)
 
         // Step 3. Create a new TransactionBuilder object.
         progressTracker.currentStep = GENERATING_TRANSACTION
