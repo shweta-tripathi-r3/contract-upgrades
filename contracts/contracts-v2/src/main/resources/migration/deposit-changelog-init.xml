@@ -16,6 +16,9 @@
             <column name="amount" type="INT"/>
             <column name="currency" type="NVARCHAR(64)"/>
             <column name="account_id" type="NVARCHAR(64)"/>
+            <column name="current_owner" type="NVARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

@@ -28,7 +28,7 @@ This would create a network of 3 nodes and a notary all running version 1 of con
 *Step2*
 Create Deposit by `BankA` with `Treasury`
 
-`start CreateDepositFlowInitiator bank: BankA, treasury: Treasury, amount: 100.00, currency: USD, ref: ref123`
+`start CreateDepositFlowInitiator bank: BankA, treasury: Treasury, amount: 100, currency: USD, ref: ref123`
 
 *Step3*
 Check created states
@@ -44,15 +44,20 @@ Upgrade can be done by using the below script, which would copy workflows-v2.jar
 ./upgrade.sh --node=Treasury,BankA,BankB --workflow=2 --contract=2`
 
 *Step2*
-Restart the nodes.
-Stop nodes from draining - `run setFlowsDrainingModeEnabled enabled: false`
+Go to the `build/nodes/<Node>` folder and open a command prompt
+run `java -jar corda.jar run-migration-scripts --core-schemas --app-schemas`
+Do this for all nodes.
 
 *Step3*
+Restart the nodes. `./build/nodes/runnodes`
+Stop nodes from draining - `run setFlowsDrainingModeEnabled enabled: false`
+
+*Step4*
 Transfer the previously created Deposit State from `BankA` to `BankB`
 
 `start TransferDepositFlowInitiator newOwner: BankB, accountId: ref123`
 
-*Step4*
+*Step5*
 Check Vault of `BankA`, `BankB` and `Treasury`
 `run vaultQuery contractStateType: com.template.states.DepositState`
 

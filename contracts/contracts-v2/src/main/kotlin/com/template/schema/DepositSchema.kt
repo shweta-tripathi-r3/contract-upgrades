@@ -37,7 +37,7 @@ class DepositSchemaV1 : MappedSchema(
         val accountId: String,
 
         @Column(name = "current_owner")
-        val currentOwner: String
+        val currentOwner: String? = ""
 
     ) : PersistentState(){
         constructor() : this("","",0,"","","")
