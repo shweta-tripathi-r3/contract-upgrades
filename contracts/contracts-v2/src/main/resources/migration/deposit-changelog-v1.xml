@@ -3,11 +3,13 @@
                    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-    <changeSet author="R3.Corda1" id="add_iou_state_column">
+    <changeSet author="R3.Corda1" id="add_deposit_state_column">
         <addColumn tableName="DEPOSITS">
-            <column name="current_owner" type="NVARCHAR(64)">
+            <column name="current_owner" type="NVARCHAR(64)" defaultValue="">
                 <constraints nullable="true"/>
             </column>
         </addColumn>
+
+<!--        <addNotNullConstraint tableName="DEPOSITS" columnName="current_owner" columnDataType="NVARCHAR(64)"/>-->
     </changeSet>
 </databaseChangeLog>

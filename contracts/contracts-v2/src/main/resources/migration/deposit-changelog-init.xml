@@ -4,7 +4,7 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
     <changeSet author="R3.Corda" id="create_deposit_state">
-        <createTable tableName="deposit_states">
+        <createTable tableName="DEPOSITS">
             <column name="output_index" type="INT">
                 <constraints nullable="false"/>
             </column>
@@ -16,9 +16,8 @@
             <column name="amount" type="INT"/>
             <column name="currency" type="NVARCHAR(64)"/>
             <column name="account_id" type="NVARCHAR(64)"/>
-            <column name="current_owner" type="NVARCHAR(64)">
-                <constraints nullable="true"/>
-            </column>
+<!--            <column name="current_owner" type="NVARCHAR(64)">-->
+<!--            </column>-->
         </createTable>
     </changeSet>
 </databaseChangeLog>
