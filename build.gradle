@@ -139,7 +139,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         extraConfig = [
                 "dataSourceProperties.dataSource.url" : "jdbc:postgresql://localhost:5432/bankA?currentSchema=my_schema",
                 "dataSourceProperties.dataSourceClassName" : "org.postgresql.ds.PGSimpleDataSource",
-                "dataSourceProperties.dataSource.user" : "my_user",
+                "dataSourceProperties.dataSource.user" : "my_admin_user",
                 "dataSourceProperties.dataSource.password" : "my_password",
                 "jarDirs" : [ "/Library/Java/postgres" ],
 //                "database.schema": "my_schema"
@@ -164,7 +164,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         extraConfig = [
                 "dataSourceProperties.dataSource.url" : "jdbc:postgresql://localhost:5432/bankB?currentSchema=my_schema",
                 "dataSourceProperties.dataSourceClassName" : "org.postgresql.ds.PGSimpleDataSource",
-                "dataSourceProperties.dataSource.user" : "my_user",
+                "dataSourceProperties.dataSource.user" : "my_admin_user",
                 "dataSourceProperties.dataSource.password" : "my_password",
                 "jarDirs" : [ "/Library/Java/postgres" ],
 //                "database.schema": "my_schema"
@@ -186,7 +186,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         extraConfig = [
                 "dataSourceProperties.dataSource.url" : "jdbc:postgresql://localhost:5432/treasury?currentSchema=my_schema",
                 "dataSourceProperties.dataSourceClassName" : "org.postgresql.ds.PGSimpleDataSource",
-                "dataSourceProperties.dataSource.user" : "my_user",
+                "dataSourceProperties.dataSource.user" : "my_admin_user",
                 "dataSourceProperties.dataSource.password" : "my_password",
                 "jarDirs" : [ "/Library/Java/postgres" ],
 //                "database.schema": "my_schema"
